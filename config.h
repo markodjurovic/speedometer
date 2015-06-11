@@ -37,6 +37,6 @@
 // Constants
 #define E_Delay       500
 #define LCD_PORT PORTB
-#define WHEEL_2RPI 1.67572552142f
+#define WHEEL_2RPI 1.35653970782 //in meters 17 inch
 
 #endif
