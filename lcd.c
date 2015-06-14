@@ -67,8 +67,10 @@ void TurnOn(void){
 }
 
 void Write3StringToLcd(char* str, char length){
-    for (char i = 0; i < length; i++)
+    for (char i = 0; i < length; i++){
         WriteDataToLCD(str[i]);
+        __delay_us(53);
+    }
 }
 
 void SetPosition(unsigned char row, unsigned char column){

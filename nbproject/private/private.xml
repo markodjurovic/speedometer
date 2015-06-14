@@ -4,6 +4,8 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/data/Dev/speedometer/main.c</file>
+            <file>file:/data/Dev/speedometer/config.h</file>
+            <file>file:/data/Dev/speedometer/eprom.c</file>
         </group>
     </open-files>
 </project-private>

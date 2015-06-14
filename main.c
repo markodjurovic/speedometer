@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
     OPTION_REG = 0b00000111; //set prescaler to 256
     INTCON = 0b10100000; 
     CMCON = 0x07;
+    WREN = 1;
     
     unsigned int lastClock = 0;
     char speedText[7];
@@ -50,7 +51,11 @@ int main(int argc, char** argv) {
     
     char continiusZero = 1;
     unsigned char speed = 0;
-    float overAllFloat = (float)getShortFromMemory(START_EEPROM_ADDRESS);
+    unsigned short oa = getShortFromMemory(START_EEPROM_ADDRESS);
+    if (oa > 999)
+        oa = 0x00;
+    float overAllFloat = (float)oa;
+    
     unsigned short long zeroCycle = 0x000000;
     char toLongInZero = 0;
     __delay_ms(40);
@@ -90,6 +95,9 @@ int main(int argc, char** argv) {
                 Write3StringToLcd(passedKmsText, 5);
                 
                 overAllFloat += wheelRoute;
+                if (overAllFloat > 999.0){
+                    overAllFloat = 0.f;
+                }
                 unsigned short overAllKms = (unsigned short)overAllFloat;                
                 
                 putShortToMemory((char)START_EEPROM_ADDRESS, overAllKms);
@@ -105,6 +113,7 @@ int main(int argc, char** argv) {
             PORTAbits.RA1 = 0;            
             if (!toLongInZero){                
                 if (continiusZero && zeroCycle >= USHRTLONG_MAX / 20){
+                    //ClearLCDScreen();
                     speed = 0x00;
                     setTextUChar(speedText, 3, speed);
                     SetPosition(0x00, 0x05);

@@ -43,6 +43,6 @@
 #define LCD_PORT PORTB
 #define WHEEL_2RPI 1.35653970782 //in meters 17 inch
 #define ZERO_SPEED_INTERVAL 6
-#define START_EEPROM_ADDRESS 0xE5
+#define START_EEPROM_ADDRESS 0x0A
 
 #endif
