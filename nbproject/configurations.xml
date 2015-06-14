@@ -7,6 +7,8 @@
       <itemPath>lcd.h</itemPath>
       <itemPath>config.h</itemPath>
       <itemPath>speed.h</itemPath>
+      <itemPath>eprom.h</itemPath>
+      <itemPath>text.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -18,6 +20,8 @@
       <itemPath>main.c</itemPath>
       <itemPath>lcd.c</itemPath>
       <itemPath>speed.c</itemPath>
+      <itemPath>eprom.c</itemPath>
+      <itemPath>text.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -30,7 +34,7 @@
     <conf name="default" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC16F84A</targetDevice>
+        <targetDevice>PIC16F628A</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>Simulator</platformTool>
@@ -75,7 +79,7 @@
         <property key="optimization-invariant-value" value="16"/>
         <property key="optimization-level" value="9"/>
         <property key="optimization-set" value="default"/>
-        <property key="optimization-speed" value="true"/>
+        <property key="optimization-speed" value="false"/>
         <property key="preprocess-assembler" value="true"/>
         <property key="undefine-macros" value=""/>
         <property key="use-cci" value="false"/>

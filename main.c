@@ -8,16 +8,13 @@
 
 #include "lcd.h"
 #include "speed.h"
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
+#include "eprom.h"
+#include "text.h"
+#include <float.h>
+#include <string.h>
+#include <limits.h>
 
 volatile unsigned char overflowCounter = 0;
-static unsigned int lastClock = 0;
-static unsigned char speed = 0;//first bit is previous value
-static char speedText[4];
-//static char passedKmsText[5];
-//static float passedKms = 0.f;
 
 void interrupt inter(void){
     if (T0IF){
@@ -32,59 +29,92 @@ int main(int argc, char** argv) {
     PORTA = 0x00;
     TRISB = 0x00; //all pins output
     TRISA = 0x04; //all output but A2
-    OPTION_REG = 0b00000111;
-//    OPTION_REG &= 0xD7;//set internal cycle clock (port 5)
-//    OPTION_REG |= 0x07;//set prescaler to 256
-    INTCON = 0b10100000;     
-    speedText[2] = 'K';
-    speedText[3] = 'm';
-    //speedText[4] = 'h';    
-    //passedKmsText[3] = 'K';
-    //passedKmsText[4] = 'm';
-        
+    OPTION_REG = 0b00000111; //set prescaler to 256
+    INTCON = 0b10100000; 
+    CMCON = 0x07;
+    
+    unsigned int lastClock = 0;
+    char speedText[7];
+    char passedKmsText[5];
+    float passedKms = 0.f;
+    char overAllKmsText[5];
+    
+    speedText[3] = 'K';
+    speedText[4] = 'm';
+    speedText[5] = '/';
+    speedText[6] = 'h';    
+    passedKmsText[3] = 'K';
+    passedKmsText[4] = 'm';
+    overAllKmsText[3] = 'K';
+    overAllKmsText[4] = 'm';
+    
+    char continiusZero = 1;
+    unsigned char speed = 0;
+    float overAllFloat = (float)getShortFromMemory(START_EEPROM_ADDRESS);
+    unsigned short long zeroCycle = 0x000000;
+    char toLongInZero = 0;
     __delay_ms(40);
     
     InitLCD();
-//    TurnOff();
-//    TurnOn();
     //ClearLCDScreen();
     
-    while (1){        
-        if (PORTAbits.RA2){
-            lastClock = TMR0;                            
-            if (!(speed & 0x80)){ //if previous value is 0
+    while (1){                
+        if (PORTAbits.RA2){            
+            if (continiusZero){ //if previous value is 0
+                lastClock = TMR0;
                 T0IE = 0;
-                lastClock = lastClock + (overflowCounter * 0xFF);
+                if (overflowCounter < 255)
+                    lastClock = lastClock + (overflowCounter * 0xFF);
+                else
+                    lastClock = UINT_MAX;
                 overflowCounter = 0;
                 TMR0 = 0x01;
                 T0IE = 1;
-                ClearLCDScreen();
-                PORTAbits.RA1 = 1;                
-                speed = caclculateSpeed((float)lastClock / 9765.625f); //hardcoded is 10M clock per second / 4 with prescaler 256;
-                //passedKms += (WHEEL_2RPI / 1000.f);
+                float wheelRoute = WHEEL_2RPI / 1000.f;
+                //ClearLCDScreen();
+                
+                PORTAbits.RA1 = 1;                              
+                
+                speed = caclculateSpeed((float)lastClock / 9765.625f); //hardcoded is 10M clock per second / 4 with prescaler 256;                
+                
                 if (speed > 99)
-                    speed = 99;                
-                for (char index = 0; index < 2; index++){                    
-                    speedText[1 - index] = (speed % 10) + 0x30;                    
-                    speed /= 10;
-                }                       
-                SetPosition(0x00, 0x06);
-                Write3StringToLcd(speedText, 4);
-//                unsigned short passedKmsChar = (unsigned short)passedKms;                
-//                for (unsigned char index = 2; index >= 0; --index){                    
-//                    passedKmsText[index] = passedKmsChar - (passedKmsChar % 10) * 10 + 0x30;
-//                    passedKmsChar /= 10;
-//                }
-//                SetPosition(0x01, 0x05);
-//                Write3StringToLcd(passedKmsText, 5);
-//                EEPROM_WRITE(0xE5, speed);
-//                speed = EEPROM_READ(0xE5);
-            }
-            speed |= 0x80; // set previous value to 1;
+                    speed = 99;
+                setTextUChar(speedText, 3, speed);
+                SetPosition(0x00, 0x05);
+                Write3StringToLcd(speedText, 7);
+                
+                passedKms += wheelRoute;
+                unsigned short passedKmsChar = (unsigned short)passedKms;                
+                setTextUShort(passedKmsText, 3, passedKmsChar);
+                SetPosition(0x01, 0x01);
+                Write3StringToLcd(passedKmsText, 5);
+                
+                overAllFloat += wheelRoute;
+                unsigned short overAllKms = (unsigned short)overAllFloat;                
+                
+                putShortToMemory((char)START_EEPROM_ADDRESS, overAllKms);
+                setTextUShort(overAllKmsText, 3, overAllKms);
+                SetPosition(0x01, 0x0A);
+                Write3StringToLcd(overAllKmsText, 5);                                           
+            }            
+            continiusZero = 0x00;
+            toLongInZero = 0x00;
+            zeroCycle = 0x00;            
         }
-        else{                        
-            PORTAbits.RA1 = 0;
-            speed &= 0x7F; //set previous value to 0;
+        else{            
+            PORTAbits.RA1 = 0;            
+            if (!toLongInZero){                
+                if (continiusZero && zeroCycle >= USHRTLONG_MAX / 20){
+                    speed = 0x00;
+                    setTextUChar(speedText, 3, speed);
+                    SetPosition(0x00, 0x05);
+                    Write3StringToLcd(speedText, 7);
+                    toLongInZero = 1;
+                    zeroCycle = 0;
+                }                                
+            }
+            zeroCycle++;
+            continiusZero = 1;
         }        
     }
     return (0);
