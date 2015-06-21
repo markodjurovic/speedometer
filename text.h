@@ -9,7 +9,7 @@
 #define	TEXT_H
 
 void setTextUChar(char* buffer, char numOfChars, unsigned char value);
-void setTextUShort(char* buffer, char numOfChars, unsigned short value);
+void setTextShort(char* buffer, char numOfChars, unsigned short value);
 
 #endif	/* TEXT_H */
 

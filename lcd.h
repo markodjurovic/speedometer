@@ -5,12 +5,12 @@
 
 
 // Function Declarations
-void WriteCommandToLCD(unsigned char);
-void WriteDataToLCD(char);
-void InitLCD(void);
-void ClearLCDScreen(void);
-void TurnOff(void);
-void TurnOn(void);
-void Write3StringToLcd(char* str, char length);
-void SetPosition(unsigned char row, unsigned char column);
+void writeCommandToLCD(unsigned char);
+void writeDataToLCD(char);
+void initLCD(void);
+void clearLCDScreen(void);
+void turnOff(void);
+void turnOn(void);
+void writeStringToLcd(char* str, char length);
+void setPosition(unsigned char row, unsigned char column);
 #endif
