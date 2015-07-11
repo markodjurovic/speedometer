@@ -41,10 +41,10 @@
 // Constants
 #define E_Delay       500
 #define LCD_PORT PORTB
-#define WHEEL_2RPI 0.00135653970782 //in kms 17 inch
+//#define WHEEL_2RPI 0.00135653970782 //in kms 17 inch
+#define WHEEL_2RPI 0.00143633616122 //in kms 18 inch
 #define ZERO_SPEED_INTERVAL 6
 #define START_EEPROM_ADDRESS 0x0A
-#define TEXT_OUT_CYCLUS 5
 #define TEXT_OUT_CYCLUS_PLUS_ONE 6
 
 #define bool char

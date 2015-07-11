@@ -12,5 +12,5 @@ void clearLCDScreen(void);
 void turnOff(void);
 void turnOn(void);
 void writeStringToLcd(char* str, char length);
-void setPosition(unsigned char row, unsigned char column);
+void setPosition(char row, char column);
 #endif

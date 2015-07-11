@@ -11,7 +11,7 @@ void writeCommandToLCD(unsigned char Command)
 	__delay_us(E_Delay); 	
 }
 
-void writeDataToLCD(unsigned char LCDChar)  
+void writeDataToLCD(char LCDChar)  
 {
 	LCD_RS = 1;				  // It is data
 	LCD_PORT = LCDChar;		  // Write value on data bus
@@ -32,14 +32,18 @@ void initLCD(void)
 	LCD_Data_Bus_Dir = 0;   // Make Output
 
   ///////////////// Reset process from datasheet //////////////
-   __delay_ms(40);
-	writeCommandToLCD(0x30);  
+    for (char i = 0; i < 3; i++){
+        __delay_ms(40);
+        writeCommandToLCD(0x30);  
+    }
+    
+    
 
-   __delay_ms(6);
-	writeCommandToLCD(0x30);  
-
-   __delay_us(300);
-	writeCommandToLCD(0x30);
+//   __delay_ms(6);
+//	writeCommandToLCD(0x30);  
+//
+//   __delay_us(300);
+//	writeCommandToLCD(0x30);
 
    __delay_ms(2);
   /////////////// Reset Process End ////////////////
@@ -73,7 +77,7 @@ void writeStringToLcd(char* str, char length){
     }
 }
 
-void setPosition(unsigned char row, unsigned char column){
+void setPosition(char row, char column){
     unsigned char command = 0x80;
     if (row){
         column |= 0x40;

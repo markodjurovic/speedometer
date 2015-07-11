@@ -8,8 +8,8 @@
 #ifndef EPROM_H
 #define	EPROM_H
 
-unsigned short getShortFromMemory(char address);
-void putShortToMemory(char address, unsigned short val);
+unsigned short getShortFromMemory();
+void putShortToMemory(unsigned short val);
 
 #endif	/* EPROM_H */
 

@@ -11,10 +11,9 @@
 #include "eprom.h"
 #include "text.h"
 #include <float.h>
-#include <string.h>
 #include <limits.h>
 
-volatile unsigned char overflowCounter = 0;
+volatile unsigned char overflowCounter = 0U;
 
 void interrupt inter(void){
     if (T0IF){
@@ -24,12 +23,12 @@ void interrupt inter(void){
     }
 }
 
-char getAvg(char* array){
+char getAvg(unsigned char* array){
     short avg = 0;
-    for (char i = 0; i < TEXT_OUT_CYCLUS; i++){
+    for (char i = 0; i < TEXT_OUT_CYCLUS_PLUS_ONE; i++){
         avg += array[i];
     }
-    avg /= TEXT_OUT_CYCLUS;
+    avg /= TEXT_OUT_CYCLUS_PLUS_ONE;
     return (char)avg;
 }
 
@@ -43,14 +42,15 @@ int main(int argc, char** argv) {
     CMCON = 0x07;
     WREN = 1;
     
-    unsigned int lastClock = 0;
+    unsigned int lastClock = 0U;
+    unsigned int lastTextClock = 0U;
     char speedText[7];
     char passedKmsText[5];
     float passedKms = 0.f;
     char overAllKmsText[5];
     bool writeText = 1;
     char magnetPassingCounter = 0;
-    char lastNSpeeds[TEXT_OUT_CYCLUS_PLUS_ONE];
+    unsigned char lastNSpeeds[TEXT_OUT_CYCLUS_PLUS_ONE];
     
     speedText[3] = 'K';
     speedText[4] = 'm';
@@ -62,12 +62,12 @@ int main(int argc, char** argv) {
     overAllKmsText[4] = 'm';
     
     char continiusZero = 1;
-    unsigned char speed = 0;
-    unsigned short overAllKms = getShortFromMemory(START_EEPROM_ADDRESS);
+    unsigned char speed = 0U;
+    unsigned short overAllKms = getShortFromMemory();
 //    if (overAllKms > 999)
 //        overAllKms = 0x00;    
     float overAllFloat = (float)overAllKms;
-    unsigned short passedKmsChar = 0;
+    unsigned short passedKmsChar = 0U;
     
     short long zeroCycle = 0x000000;
     char toLongInZero = 0;
@@ -84,9 +84,11 @@ int main(int argc, char** argv) {
                     lastClock = lastClock + (overflowCounter * 0xFF);
                 else
                     lastClock = UINT_MAX;
-                overflowCounter = 0;
+                overflowCounter = 0U;
                 TMR0 = 0x01;
-                T0IE = 1;                
+                T0IE = 1;
+                
+                lastTextClock += lastClock;
                 
                 PORTAbits.RA1 = 1;                              
                 
@@ -103,14 +105,17 @@ int main(int argc, char** argv) {
                     overAllFloat = 0.f;
                 }
                 overAllKms = (short)overAllFloat;
-                putShortToMemory((char)START_EEPROM_ADDRESS, overAllKms);
-                //lastNSpeeds[magnetPassingCounter] = speed;
-                if (magnetPassingCounter % TEXT_OUT_CYCLUS == 0){                    
-                    //speed = getAvg(lastNSpeeds);
-                    writeText = 1;
+                putShortToMemory(overAllKms);
+                magnetPassingCounter++;
+                if (magnetPassingCounter == TEXT_OUT_CYCLUS_PLUS_ONE){
                     magnetPassingCounter = 0;
-                }                
-                magnetPassingCounter++;                
+                }
+                lastNSpeeds[magnetPassingCounter] = speed;
+                if (lastTextClock > 9765){                    
+                    speed = getAvg(lastNSpeeds);
+                    writeText = 1;                    
+                    lastTextClock = 0;
+                }
             }            
             continiusZero   = 0x00;
             toLongInZero    = 0x00;
@@ -131,15 +136,15 @@ int main(int argc, char** argv) {
         }
         if (writeText){
             setTextShort(overAllKmsText, 3, overAllKms);
-            setPosition(0x01, 0x0A);
+            setPosition(1, 10);
             writeStringToLcd(overAllKmsText, 5);
             
             setTextShort(passedKmsText, 3, passedKmsChar);
-            setPosition(0x01, 0x01);
+            setPosition(1, 1);
             writeStringToLcd(passedKmsText, 5);
             
             setTextUChar(speedText, 3, speed);
-            setPosition(0x00, 0x05);
+            setPosition(0, 5);
             writeStringToLcd(speedText, 7);
         }
         writeText = 0;

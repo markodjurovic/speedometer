@@ -10,6 +10,7 @@
             <file>file:/data/Dev/speedometer/config.h</file>
             <file>file:/data/Dev/speedometer/speed.c</file>
             <file>file:/data/Dev/speedometer/text.c</file>
+            <file>file:/data/Dev/speedometer/lcd.c</file>
             <file>file:/data/Dev/speedometer/eprom.c</file>
         </group>
     </open-files>
