@@ -5,3 +5,5 @@ Magnet should be positioned somewhere at wheel, and REED somewhere on front fork
 For components list and schematicks please visit [wiki page](https://github.com/markodjurovic/speedometer/wiki)
 
 To build source on 16f628 you need licenced compiler. To build it using free compiler you got to use some microcontroller with more instructions memory.
+
+[Lab action](https://www.youtube.com/watch?v=33Hf6KTkfwc)
